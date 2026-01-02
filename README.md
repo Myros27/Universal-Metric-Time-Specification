@@ -81,3 +81,45 @@ Omit Grana unless necessary.
 "Let's meet at 18X5." (18X500)
 "The race finished at 18X521.4."
 ```
+
+---
+
+## 6. Conversion Guide (Local Time to UMT)
+
+Since UMT is **UTC+0**, conversion requires normalizing to UTC first, then calculating the day-fraction.
+
+### 6.1 The Constants
+*   **Seconds in Day:** 86,400
+*   **Seconds per Quanta:** 0.864
+
+### 6.2 The Algorithm
+1.  **Normalize:** Convert Local Time to UTC.
+2.  **Sum Seconds:** Calculate total seconds passed since UTC midnight ($T_{sec}$).
+    $$T_{sec} = (Hours \times 3600) + (Minutes \times 60) + Seconds + (Milliseconds / 1000)$$
+3.  **Calculate UMT Raw Value:**
+    $$UMT_{raw} = \frac{T_{sec}}{0.864}$$
+
+### 6.3 Formatting Logic
+Given a result like **`42317.084`**:
+
+1.  **Chrona:** Integer part divided by 1000.
+    *   $42317 / 1000 = 42$ $\rightarrow$ `42X`
+2.  **Quanta:** Integer part modulo 1000.
+    *   $42317 \pmod{1000} = 317$ $\rightarrow$ `317`
+3.  **Grana:** The fractional part.
+    *   $.084$ $\rightarrow$ `.084`
+
+**Result:** `42X317.084`
+
+### 6.4 Example Calculation
+**Input:** 06:00:00 UTC (Morning)
+
+1.  $T_{sec} = 6 \times 3600 = 21,600$
+2.  $UMT_{raw} = 21,600 / 0.864 = 25,000$
+3.  Format: `25X000` (or simply `25X0`)
+
+**Input:** 18:30:00 UTC (Evening)
+
+1.  $T_{sec} = (18 \times 3600) + (30 \times 60) = 66,600$
+2.  $UMT_{raw} = 66,600 / 0.864 = 77,083.333...$
+3.  Format: `77X083.333`
